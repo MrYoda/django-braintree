@@ -1,2 +1,23 @@
+# OS & Editors folders
+.DS_Store
+.cache
+.directory
+.project
+.settings
+.tmproj
+.ropeproject
+.pydevproject
+nbproject
+Thumbs.db
+.idea
+*.orig
+.c9
+.~c9_invoke*
+
+# Python
+__pycache__
 *.pyc
-*.DS_Store
+
+# DBs
+/*.db
+/*.sqlite3
