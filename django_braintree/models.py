@@ -2,7 +2,8 @@ import logging
 from decimal import Decimal
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.utils.six import python_2_unicode_compatible
 
 from braintree import Transaction
 
@@ -23,27 +24,29 @@ class UserVaultManager(models.Manager):
         return True if self.filter(user=user) else False
     
     def charge(self, user, vault_id=None):
-        """If vault_id is not passed this will assume that there is only one instane of user and vault_id in the db."""
+        """If vault_id is not passed this will assume that there is only one instance of user and vault_id in the db."""
         assert self.is_in_vault(user)
         if vault_id:
-            user_vault = self.get(user=user, vault_id=vault_id)
+            self.get(user=user, vault_id=vault_id)
         else:
-            user_vault = self.get(user=user)
+            self.get(user=user)
 
+
+@python_2_unicode_compatible
 class UserVault(models.Model):
     """Keeping it open that one user can have multiple vault credentials, hence the FK to User and not a OneToOne."""
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL)
     vault_id = models.CharField(max_length=64, unique=True)
     
     objects = UserVaultManager()
     
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
     
     def charge(self, amount):
         """
-        Charges the users credit card, with he passed $amount, if they are in the vault. Returns the payment_log instance
-        or None (if charge fails etc.)
+        Charges the users credit card, with he passed $amount, if they are in the vault.
+        Returns the payment_log instance or None (if charge fails etc.)
         """
         try:
             result = Transaction.sale(
@@ -58,23 +61,28 @@ class UserVault(models.Model):
 
             if result.is_success:
                 # create a payment log
-                payment_log = PaymentLog.objects.create(user=self.user, amount=amount, transaction_id=result.transaction.id)
+                payment_log = PaymentLog.objects.create(
+                    user=self.user, amount=amount,
+                    transaction_id=result.transaction.id
+                )
                 return payment_log
             else:
-                raise Exception('Logical error in CC transaction')
-        except Exception:
+                raise ValueError('Logical error in CC transaction')
+        except ValueError:
             logging.error('Failed to charge $%s to user: %s with vault_id: %s' % (amount, self.user, self.vault_id))
             return None
 
+
+@python_2_unicode_compatible
 class PaymentLog(models.Model):
     """
     Captures raw charges made to a users credit card. Extra info related to this payment should be a OneToOneField
     referencing this model.
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     amount = models.DecimalField(max_digits=7, decimal_places=2)
     timestamp = models.DateTimeField(auto_now=True)
     transaction_id = models.CharField(max_length=128)
     
-    def __unicode__(self):
+    def __str__(self):
         return '%s charged $%s - %s' % (self.user, self.amount, self.transaction_id)
