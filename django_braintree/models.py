@@ -9,27 +9,15 @@ from braintree import Transaction
 
 
 class UserVaultManager(models.Manager):
-    def get_user_vault_instance_or_none(self, user):
-        """Returns a vault_id string or None"""
-        qset = self.filter(user=user)
-        if not qset:
+    def for_user(self, user):
+        """ Returns UserVault object for user or None"""
+        try:
+            return self.get(user=user)
+        except UserVault.DoesNotExists:
             return None
-        
-        if qset.count() > 1:
-            raise Exception('This app does not currently support multiple vault ids')
-        
-        return qset.get()
     
     def is_in_vault(self, user):
-        return True if self.filter(user=user) else False
-    
-    def charge(self, user, vault_id=None):
-        """If vault_id is not passed this will assume that there is only one instance of user and vault_id in the db."""
-        assert self.is_in_vault(user)
-        if vault_id:
-            self.get(user=user, vault_id=vault_id)
-        else:
-            self.get(user=user)
+        return True if self.filter(user=user).count() > 0 else False
 
 
 @python_2_unicode_compatible

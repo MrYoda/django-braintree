@@ -25,17 +25,16 @@ class UserCCDetailsForm(forms.Form):
     )
 
     __YEAR_CHOICES = (
-        (2010, '2010'),
-        (2011, '2011'),
-        (2012, '2012'),
-        (2013, '2013'),
-        (2014, '2014'),
-        (2015, '2015'),
         (2016, '2016'),
         (2017, '2017'),
         (2018, '2018'),
         (2019, '2019'),
         (2020, '2020'),
+        (2021, '2021'),
+        (2022, '2022'),
+        (2023, '2023'),
+        (2024, '2024'),
+        (2025, '2025'),
     )
     
     name = forms.CharField(max_length=64, label='Name as on card')
@@ -55,7 +54,7 @@ class UserCCDetailsForm(forms.Form):
         this form is meant for rendering to the user, hence initialize with braintree data (if any).
         """
         self.__user = user
-        self.__user_vault = UserVault.objects.get_user_vault_instance_or_none(user)
+        self.__user_vault = UserVault.objects.for_user(user)
         
         if not post_to_update and self.__user_vault and not args:
             logging.debug('Looking up payment info for vault_id: %s' % self.__user_vault.vault_id)
@@ -72,7 +71,7 @@ class UserCCDetailsForm(forms.Form):
                     'zip_code': info.billing_address.postal_code,
                 }
                 super(UserCCDetailsForm, self).__init__(initial=initial, *args, **kwargs)
-            except Exception, e:
+            except Exception as e:
                 logging.error('Was not able to get customer from vault. %s' % e)
                 super(UserCCDetailsForm, self).__init__(initial = {'name': '%s %s' % (user.first_name, user.last_name)},
                     *args, **kwargs)
@@ -116,7 +115,7 @@ class UserCCDetailsForm(forms.Form):
                 response = Customer.find(self.__user_vault.vault_id)
                 cc_info = response.credit_cards[0]
                 return CreditCard.update(cc_info.token, params=cc_details_map)
-            except Exception, e:
+            except Exception as e:
                 logging.error('Was not able to get customer from vault. %s' % e)
                 self.__user_vault.delete()  # delete the stale instance from our db
         

@@ -15,6 +15,7 @@ from django_braintree.models import UserVault
 
 BAD_CC_ERROR_MSG = 'Oops! Doesn\'t seem like your Credit Card details are correct. Please re-check and try again.'
 
+
 @ssl_required()
 @login_required
 def payments_billing(request, template='django_braintree/payments_billing.html'):
@@ -39,9 +40,9 @@ def payments_billing(request, template='django_braintree/payments_billing.html')
     else:
         if UserVault.objects.is_in_vault(request.user):
             try:
-                response = Customer.find(UserVault.objects.get_user_vault_instance_or_none(request.user).vault_id)
+                response = Customer.find(UserVault.objects.for_user(request.user).vault_id)
                 d['current_cc_info'] = response.credit_cards[0]
-            except Exception, e:
+            except Exception as e:
                 logging.error('Unable to get vault information for user from braintree. %s' % e)
         d['cc_form'] = UserCCDetailsForm(request.user)
     
