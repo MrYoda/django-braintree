@@ -20,13 +20,13 @@ f.close()
 
 setup(
     name='tivix-django-braintree',
-    version='0.1.2',
+    version='0.1.4',
     author='Sumit Chachra',
     author_email='chachra@tivix.com',
     url='http://github.com/tivix/django-braintree',
-    description = 'An easy way to integrate with Braintree Payment Solutions from Django.',
+    description='An easy way to integrate with Braintree Payment Solutions from Django.',
     long_description=long_description,
-    keywords = 'django braintree payment',
+    keywords='django braintree payment',
     packages=find_packages(),
     zip_safe=False,
     install_requires=[
@@ -36,8 +36,8 @@ setup(
         'django-common-helpers>=0.8.0',
         'fudge==1.0.3'
     ],
-    #dependency_links=["git://github.com/Tivix/django-common.git@91e23cd5e0e8b420e8d4#egg=django_common-0.1"],
-    test_suite = 'django_braintree.tests',
+    # dependency_links=["git://github.com/Tivix/django-common.git@91e23cd5e0e8b420e8d4#egg=django_common-0.1"],
+    test_suite='django_braintree.tests',
     include_package_data=True,
     # cmdclass={},
     classifiers=[
