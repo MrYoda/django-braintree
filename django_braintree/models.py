@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.conf import settings
-from django.utils.six import python_2_unicode_compatible
+from django.utils.six import python_2_unicode_compatible, text_type
 
 from braintree import Transaction
 
@@ -41,7 +41,7 @@ class UserVault(models.Model):
     objects = UserVaultManager()
     
     def __str__(self):
-        return self.user.username
+        return text_type(self.user)
     
     def charge(self, amount):
         """
