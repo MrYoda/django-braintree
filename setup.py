@@ -28,6 +28,7 @@ setup(
     long_description=long_description,
     keywords='django braintree payment',
     packages=find_packages(),
+    include_package_data=True,
     zip_safe=False,
     install_requires=[
         'Django>=1.4.0',
@@ -36,10 +37,7 @@ setup(
         'django-common-helpers>=0.8.0',
         'fudge==1.0.3'
     ],
-    # dependency_links=["git://github.com/Tivix/django-common.git@91e23cd5e0e8b420e8d4#egg=django_common-0.1"],
     test_suite='django_braintree.tests',
-    include_package_data=True,
-    # cmdclass={},
     classifiers=[
         'Framework :: Django',
         'Intended Audience :: Developers',
